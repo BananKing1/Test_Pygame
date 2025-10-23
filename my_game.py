@@ -1,27 +1,40 @@
 import pygame
+import movement
+import keys
 
 pygame.init()
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+# Get the screen size dynamically
+info = pygame.display.Info()
+SCREEN_WIDTH, SCREEN_HEIGHT = info.current_w, info.current_h
 
-screen = my_game.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-my_game.display.set_caption("My Pygame Window")
+# Create a full-screen window
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREEN)
 
-player = my_game.Rect(50, 50, 50, 50)  # x, y, width, height
+player = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
+player_speed = 1  # Movement speed
 
+enemy = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
 
 running = True
 while running:
-    screen.fill(0,0,0)
+    screen.fill((0, 0, 0))  # Fill background with black
     
-    my_game.draw.rect(screen, (255, 0, 0), player)  # Draw the player as a red rectangle
+    pygame.draw.rect(screen, (255, 0, 0), player)  # Draw the player
+    pygame.draw.rect(screen, (0, 255, 0), enemy)
+
+    # Get key states
+    key = pygame.key.get_pressed()
+
+    movement.handle_movement(player,key, player_speed)
+    movement.bound(player, SCREEN_WIDTH, SCREEN_HEIGHT)
+    running = keys.quit_game(key)  # Check for quit condition
     
-    
-    
-    for event in my_game.event.get():
-        if event.type == my_game.QUIT:
+    # Handle window close event
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
             running = False
 
-    my_game.display.update()
-my_game.quit()
+    pygame.display.update()
+
+pygame.quit()
