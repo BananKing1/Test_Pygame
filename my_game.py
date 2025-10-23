@@ -1,6 +1,7 @@
 import pygame
 import movement
 import keys
+import combat
 
 pygame.init()
 
@@ -13,6 +14,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.FULLSCREE
 
 player = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
 player_speed = 1  # Movement speed
+health = int(5)  # Player health
 
 enemy = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
 
@@ -29,6 +31,9 @@ while running:
     movement.handle_movement(player,key, player_speed)
     movement.bound(player, SCREEN_WIDTH, SCREEN_HEIGHT)
     running = keys.quit_game(key)  # Check for quit condition
+    
+   
+    health = combat.hitbox(player, enemy, health)
     
     # Handle window close event
     for event in pygame.event.get():
