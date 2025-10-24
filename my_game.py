@@ -1,4 +1,6 @@
 import pygame
+import random
+
 import movement
 import keys
 import combat
@@ -16,24 +18,33 @@ player = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
 player_speed = 1  # Movement speed
 health = int(5)  # Player health
 
+bullet = pygame.Rect(0, 0, 10, 5)  # x, y, width, height
+bullet_speed = 1  # Bullet speed
+bullets = []  # list to store bullets
+
 enemy = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
 
 running = True
 while running:
-    screen.fill((0, 0, 0))  # Fill background with black
-    
-    pygame.draw.rect(screen, (255, 0, 0), player)  # Draw the player
-    pygame.draw.rect(screen, (0, 255, 0), enemy)
-
-    # Get key states
+    screen.fill((0, 0, 0))
     key = pygame.key.get_pressed()
 
-    movement.handle_movement(player,key, player_speed)
+    # Movement & logic
+    movement.handle_movement(player, key, player_speed)
     movement.bound(player, SCREEN_WIDTH, SCREEN_HEIGHT)
-    running = keys.quit_game(key)  # Check for quit condition
-    
-   
-    health = combat.hitbox(player, enemy, health)
+    health = combat.collided(player, enemy, health)
+
+    running = keys.quit_game(key)
+
+    # Shooting and bullets
+    combat.shoot(bullets, player, key)
+    combat.move_bullets(bullets, bullet_speed)
+    combat.bullet_hit(bullets, enemy, SCREEN_WIDTH, SCREEN_HEIGHT)
+
+    # Draw
+    pygame.draw.rect(screen, (255, 0, 0), player)
+    pygame.draw.rect(screen, (0, 255, 0), enemy)
+    combat.draw_bullets(screen, bullets)
     
     # Handle window close event
     for event in pygame.event.get():
