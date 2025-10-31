@@ -18,39 +18,44 @@ player = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
 player_speed = 1  # Movement speed
 health = int(5)  # Player health
 
-bullet = pygame.Rect(0, 0, 10, 5)  # x, y, width, height
+enemy = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
+
 bullet_speed = 1  # Bullet speed
 bullets = []  # list to store bullets
 
-enemy = pygame.Rect(50, 50, 50, 50)  # x, y, width, height
-
 running = True
 while running:
-    screen.fill((0, 0, 0))
-    key = pygame.key.get_pressed()
-
-    # Movement & logic
-    movement.handle_movement(player, key, player_speed)
-    movement.bound(player, SCREEN_WIDTH, SCREEN_HEIGHT)
-    health = combat.collided(player, enemy, health)
-
-    running = keys.quit_game(key)
-
-    # Shooting and bullets
-    combat.shoot(bullets, player, key)
-    combat.move_bullets(bullets, bullet_speed)
-    combat.bullet_hit(bullets, enemy, SCREEN_WIDTH, SCREEN_HEIGHT)
-
-    # Draw
-    pygame.draw.rect(screen, (255, 0, 0), player)
-    pygame.draw.rect(screen, (0, 255, 0), enemy)
-    combat.draw_bullets(screen, bullets)
-    
-    # Handle window close event
+    # Handle events first
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
+    keys_pressed = pygame.key.get_pressed()
+
+    # Quit on ESC
+    if keys_pressed[pygame.K_ESCAPE]:
+        running = False
+
+    # Movement & logic
+    movement.handle_movement(player, keys_pressed, player_speed)
+    movement.bound(player, SCREEN_WIDTH, SCREEN_HEIGHT)
+    health = combat.collided(player, enemy, health)
+
+    # Clear screen first
+    screen.fill((0, 0, 0))
+
+    # Shooting (move and draw bullets)
+    combat.shoot(bullets, player, bullet_speed, screen)
+
+    # Draw player and enemy
+    pygame.draw.rect(screen, (255, 0, 0), player)
+    pygame.draw.rect(screen, (0, 255, 0), enemy)
+
+    # Handle bullet-enemy collision
+    combat.bullet_hit(bullets, enemy, SCREEN_WIDTH, SCREEN_HEIGHT)
+
     pygame.display.update()
 
+
 pygame.quit()
+

@@ -1,45 +1,67 @@
 import pygame
 import random
-import time
 
 last_shot = 0
-shot_delay = 200  # milliseconds
+shot_delay = 150  # milliseconds between shots
+
+def shoot(bullets, player, bullet_speed, screen):
+    """Handles shooting, moving, and drawing bullets in all directions."""
+    global last_shot
+    keys = pygame.key.get_pressed()
+    now = pygame.time.get_ticks()
+
+    # Shooting UP
+    if keys[pygame.K_UP] and now - last_shot > shot_delay:
+        bullet = pygame.Rect(player.centerx - 2, player.top, 5, 5)
+        bullets.append({'rect': bullet, 'dir': (0, -1)})  # (dx, dy)
+        last_shot = now
+
+    # Shooting DOWN
+    if keys[pygame.K_DOWN] and now - last_shot > shot_delay:
+        bullet = pygame.Rect(player.centerx - 2, player.bottom, 5, 5)
+        bullets.append({'rect': bullet, 'dir': (0, 1)})
+        last_shot = now
+
+    # Shooting LEFT
+    if keys[pygame.K_LEFT] and now - last_shot > shot_delay:
+        bullet = pygame.Rect(player.left, player.centery - 2, 5, 5)
+        bullets.append({'rect': bullet, 'dir': (-1, 0)})
+        last_shot = now
+
+    # Shooting RIGHT
+    if keys[pygame.K_RIGHT] and now - last_shot > shot_delay:
+        bullet = pygame.Rect(player.right, player.centery - 2, 5, 5)
+        bullets.append({'rect': bullet, 'dir': (1, 0)})
+        last_shot = now
+
+    # Move bullets
+    for bullet in bullets[:]:
+        dx, dy = bullet['dir']
+        bullet['rect'].x += dx * bullet_speed
+        bullet['rect'].y += dy * bullet_speed
+        # Remove bullets that leave the screen
+        if (bullet['rect'].bottom < 0 or bullet['rect'].top > screen.get_height() or
+            bullet['rect'].right < 0 or bullet['rect'].left > screen.get_width()):
+            bullets.remove(bullet)
+
+    # Draw bullets
+    for bullet in bullets:
+        pygame.draw.rect(screen, (255, 255, 0), bullet['rect'])
+
+
+def bullet_hit(bullets, enemy, sw, sh):
+    for bullet in bullets[:]:
+        if bullet['rect'].colliderect(enemy):
+            bullets.remove(bullet)
+            enemy.x = random.randint(0, sw - 50)
+            enemy.y = random.randint(0, sh - 50)
+
 
 def collided(object1, object2, health):
     if object1.colliderect(object2):
         # Move object2 to a new position
         object2.x = random.randint(0, 750)
         object2.y = random.randint(0, 750)
-
         health -= 1  # Decrease health on hit
-        print( "Health:", health)
+        print("Health:", health)
     return health
-
-def shoot(bullets, player, key):
-    global last_shot
-    if key[pygame.K_SPACE]:
-        now = pygame.time.get_ticks()
-        if now - last_shot > shot_delay:  # fire only if delay passed
-            bullet = pygame.Rect(player.centerx - 2, player.top, 5, 5)  # small square bullet
-            bullets.append(bullet)
-            last_shot = now
-
-def move_bullets(bullets, bullet_speed):
-    """Move bullets upward and remove them if they go off-screen."""
-    for bullet in bullets[:]:
-        bullet.y -= bullet_speed
-        if bullet.bottom < 0:
-            bullets.remove(bullet)
-
-def draw_bullets(screen, bullets):
-    """Draw bullets on the screen."""
-    for bullet in bullets:
-        pygame.draw.rect(screen, (255, 255, 0), bullet)
-
-def bullet_hit(bullets, enemy, screen_width, screen_height):
-    """Check for bullet collision with enemy."""
-    for bullet in bullets[:]:
-        if bullet.colliderect(enemy):
-            bullets.remove(bullet)
-            enemy.x = random.randint(0, screen_width - 50)
-            enemy.y = random.randint(0, screen_height - 50)
