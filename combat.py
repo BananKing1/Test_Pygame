@@ -11,9 +11,6 @@ def collided(object1, object2, health):
         print( "Health:", health)
     return health
 
-import pygame
-import random
-
 def shoot(bullets, player, key):
     """Create a new bullet when SPACE is pressed."""
     if key[pygame.K_SPACE]:
