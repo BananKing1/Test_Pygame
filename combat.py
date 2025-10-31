@@ -1,5 +1,9 @@
 import pygame
 import random
+import time
+
+last_shot = 0
+shot_delay = 200  # milliseconds
 
 def collided(object1, object2, health):
     if object1.colliderect(object2):
@@ -12,10 +16,13 @@ def collided(object1, object2, health):
     return health
 
 def shoot(bullets, player, key):
-    """Create a new bullet when SPACE is pressed."""
+    global last_shot
     if key[pygame.K_SPACE]:
-        bullet = pygame.Rect(player.centerx - 5, player.top, 10, 20)
-        bullets.append(bullet)
+        now = pygame.time.get_ticks()
+        if now - last_shot > shot_delay:  # fire only if delay passed
+            bullet = pygame.Rect(player.centerx - 2, player.top, 5, 5)  # small square bullet
+            bullets.append(bullet)
+            last_shot = now
 
 def move_bullets(bullets, bullet_speed):
     """Move bullets upward and remove them if they go off-screen."""
